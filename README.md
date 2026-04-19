@@ -58,9 +58,22 @@ This fork targets `torch-directml` on Windows with supported DirectX 12 GPUs.
 
 ### Notes for this fork
 
-- This repo uses `torch-directml` for GPU acceleration.
-- On Windows ARM64, the Adreno GPU may be available through DirectML.
-- Some ops may still fallback to CPU during training, especially optimizer updates.
+This repo uses `torch-directml` for GPU acceleration. DirectML allows running PyTorch on any DirectX 12 compatible GPU, including Qualcomm Adreno (ARM64), AMD, and Intel.
+
+## Technical Architecture (v2.0 "Vanguard")
+
+The FastAI library is primarily designed for CUDA (NVIDIA) or CPU. To bridge this gap for Windows consumer hardware, this repository includes a centralized **Vanguard Adaptation Layer** ([`dml_fastai_utils.py`](./dml_fastai_utils.py)) that performs "monkey-patching" on FastAI core classes and provides high-level adapters for Transformers.
+
+### Key Infrastructure:
+- **Normalization Patching**: Moves mean/std tensors to the DirectML device during initialization, preventing "device mismatch" errors.
+- **Freeze/Unfreeze Stability**: Overrides `Learner.freeze_to` to safely manage gradients and clear optimizer states, supporting both standard models and HuggingFace wrappers.
+- **HuggingFace Synergy**: Includes `HFModelWrapper` and `HFCallback` to bridge HuggingFace models into FastAI with full DirectML device awareness (handling attention masks and logit extraction).
+- **Portability Layer**: Standardized data path handling via `get_local_path()` ensures your notebooks work out-of-the-box on any Windows machine.
+
+### Caveats & Performance
+
+- **Mixed Precision**: `to_fp16()` is currently disabled in most learners because DirectML support for half-precision operators varies across hardware vendors.
+- **Operator Fallbacks**: If you see warnings like `The operator 'aten::...' will fall back to run on the CPU`, it means DirectML does not have a native implementation for that specific operation yet. These parts of the model will run on your CPU, which may cause performance slowdowns.
 
 ## Local dataset caching
 
