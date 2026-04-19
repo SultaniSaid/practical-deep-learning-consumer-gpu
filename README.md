@@ -24,12 +24,15 @@ This fork is focused on making the repo work well for Windows 11 on ARM, includi
    git clone https://github.com/SultaniSaid/practical-deep-learning-consumer-gpu.git
    cd practical-deep-learning-consumer-gpu
    ```
-2. Create and activate a Python virtual environment.
-3. Install dependencies:
+2. Install Python 3.11 AMD64, even on Windows 11 ARM64.
+   - `torch-directml` does not provide native `winarm64` wheels, so using the AMD64 installer with emulation is required for compatibility.
+   - This repository is tested with Python 3.11 AMD64 in VS Code on Windows 11 ARM.
+3. Create and activate a Python virtual environment.
+4. Install dependencies:
    ```powershell
    pip install -r requirements.txt
    ```
-4. Run notebooks from VS Code or Jupyter.
+5. Run notebooks from VS Code or Jupyter.
 
 ## FastAI notebooks
 
