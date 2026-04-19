@@ -92,6 +92,38 @@ learn.fit_one_cycle(4)
 
 ---
 
+### 🔥 Gateway 3: Pure PyTorch (Manual Loop)
+*Best for: Custom architectures, Research, Non-FastAI projects.*
+```python
+import torch
+import torch_directml
+
+# 1. Setup Device
+device = torch_directml.device()
+model = MyModel()
+
+# 2. THE VANGUARD RULE: Move to GPU BEFORE creating the optimizer
+model.to(device)
+
+# 3. Manual Gradient Check (Ensures DirectML didn't 'detach' parameters)
+for p in model.parameters(): 
+    p.requires_grad_(True)
+
+# 4. Initialize Optimizer (Now correctly tracks GPU memory)
+optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+
+# 5. Standard Training Loop
+for images, labels in dataloader:
+    # Manual move of data
+    images, labels = images.to(device), labels.to(device)
+    
+    optimizer.zero_grad()
+    outputs = model(images)
+    loss = criterion(outputs, labels)
+    loss.backward()
+    optimizer.step()
+```
+
 ---
 
 ## 📦 Portability: Using Vanguard in Other Projects
